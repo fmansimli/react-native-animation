@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { DrawerNavigationOptions } from "@react-navigation/drawer";
 
 const HomeScreen = () => {
   return (
-    <View>
+    <View style={styles.screen}>
       <Text>HomeScreen</Text>
     </View>
   );
