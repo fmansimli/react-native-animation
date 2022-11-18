@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, View, Switch } from "react-native";
+import { Button, StyleSheet, View, Switch, Alert } from "react-native";
 import { DrawerNavigationOptions } from "@react-navigation/drawer";
 
 import {
@@ -40,7 +40,7 @@ const MeetScreen = () => {
     });
 
     rtcSocket.offerIn((data: any) => {
-      alert(JSON.stringify(data, null, 2));
+      Alert.alert(JSON.stringify(data, null, 2));
       rtcSocket.sendAnswer(data.from, {
         title: "myanswer",
         from: Device.info,
@@ -48,7 +48,7 @@ const MeetScreen = () => {
     });
 
     rtcSocket.answerIn((data: any) => {
-      alert(JSON.stringify(data, null, 2));
+      Alert.alert(JSON.stringify(data, null, 2));
     });
   }, []);
 

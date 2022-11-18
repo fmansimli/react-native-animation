@@ -11,7 +11,7 @@ export const initWebRTC = () => {
     reconnectionDelay: 1000,
     transports: ["websocket"],
     auth: {
-      token: "acessToken_",
+      token: "acessToken_mobile",
     },
   });
 
