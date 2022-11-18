@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, View } from "react-native";
 import { DrawerNavigationOptions } from "@react-navigation/drawer";
 
@@ -7,28 +7,32 @@ import { mediaDevices, RTCView, MediaStream } from "react-native-webrtc";
 const MeetScreen = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
 
+  useEffect(() => {
+    return () => stream?.release();
+  }, []);
+
   const start = async () => {
     if (!stream) {
-      let s;
+      let lStream;
       try {
-        s = await mediaDevices.getUserMedia({ video: true });
-        setStream(s);
+        lStream = await mediaDevices.getUserMedia({ video: true });
+        setStream(lStream);
       } catch (e) {
-        console.error(e);
+        console.log(e);
       }
     }
   };
 
   const stop = () => {
-    if (stream) {
-      stream.release();
-      setStream(null);
-    }
+    stream?.release();
+    setStream(null);
   };
 
   return (
     <View style={styles.screen}>
-      <View style={styles.video}></View>
+      <View style={styles.video}>
+        <RTCView streamURL={stream?.toURL()} style={styles.stream} />
+      </View>
       <View style={styles.buttons}>
         <Button title="start" onPress={start} />
         <Button title="stop" onPress={stop} />
@@ -38,7 +42,7 @@ const MeetScreen = () => {
 };
 
 export const meetOptions: DrawerNavigationOptions = {
-  title: "app",
+  title: "meet",
 };
 
 export default MeetScreen;
@@ -46,13 +50,14 @@ export default MeetScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    padding: 20,
   },
   video: {
     height: "80%",
-    borderWidth: 1,
+    margin: 5,
   },
-  stream: { flex: 1 },
+  stream: {
+    flex: 1,
+  },
   buttons: {
     flex: 1,
     flexDirection: "row",
