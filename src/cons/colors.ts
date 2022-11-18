@@ -1,0 +1,17 @@
+export default {
+  red: "#FF5959",
+  orange: "#FB5D00",
+  blue: "#4356FF",
+  lightBlue: "#1DC6FC",
+  black70: "#333333",
+  black60: "#5c5c5c",
+  black50: "#858585",
+  black40: "#adadad",
+  black30: "#d6d6d6",
+  black20: "#Fafafafa",
+  white: "#FFFFFF",
+  yellow: "#FFC526",
+  green: "#32D07B",
+  gradient: "#FFA800-#F80000",
+  background: "#E5E5E5",
+};

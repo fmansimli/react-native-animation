@@ -11,6 +11,9 @@ import {
 } from "react-native-webrtc";
 import { mediaCons, peerCons, sessionCons } from "webrtc/config";
 
+import * as rtcSocket from "sockets/webrtc.socket";
+import { Device } from "cons";
+
 const MeetScreen = () => {
   const [video, setVideo] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -20,7 +23,33 @@ const MeetScreen = () => {
   const channel = useRef<any>(null);
 
   useEffect(() => {
-    return () => stop();
+    rtcSocket.initWebRTC();
+
+    return () => {
+      rtcSocket.disconnect();
+      stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    rtcSocket.userJoined((socketID: string) => {
+      rtcSocket.sendOffer(socketID, {
+        title: "myoffer",
+        from: Device.info,
+      });
+    });
+
+    rtcSocket.offerIn((data: any) => {
+      alert(JSON.stringify(data, null, 2));
+      rtcSocket.sendAnswer(data.from, {
+        title: "myanswer",
+        from: Device.info,
+      });
+    });
+
+    rtcSocket.answerIn((data: any) => {
+      alert(JSON.stringify(data, null, 2));
+    });
   }, []);
 
   useEffect(() => {}, [video]);
