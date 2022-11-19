@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "reset": "rm -rf node_modules/ && npm i",
-    "reset:full": "rm -rf node_modules/ && cd ios/ && rm -rf Pods/ build/ Podfile.lock && cd .. && npm i"
+    "reset:full": "rm -rf node_modules/ && cd ios/ && rm -rf Pods/ build/ Podfile.lock && cd .."
   },
   "dependencies": {
     "@react-navigation/drawer": "^6.5.0",

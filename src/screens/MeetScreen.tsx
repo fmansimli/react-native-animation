@@ -143,7 +143,7 @@ const MeetScreen = () => {
           style={styles.stream}
           mirror={true}
           objectFit={"cover"}
-          zOrder={0}
+          
         />
       </View>
       <View style={styles.buttons}>
