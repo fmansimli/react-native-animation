@@ -35,6 +35,12 @@
 			</dict>
 		</dict>
 	</dict>
+
+	<key>NSCameraUsageDescription</key>
+	<string>Camera permission description</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone permission description</string>
+
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
