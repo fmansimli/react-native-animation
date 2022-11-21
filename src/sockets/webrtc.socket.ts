@@ -1,5 +1,5 @@
 import { Socket, io } from "socket.io-client";
-import { ENV } from "cons";
+import { ENV, Device } from "cons";
 
 let socket: Socket;
 const URL = ENV.socketURL;
@@ -11,7 +11,7 @@ export const initWebRTC = () => {
     reconnectionDelay: 1000,
     transports: ["websocket"],
     auth: {
-      token: "acessToken_mobile",
+      token: "accessToken_mobile" + Device.info,
     },
   });
 

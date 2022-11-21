@@ -18,6 +18,8 @@ const MeetScreen = () => {
   const [video, setVideo] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [rStream, setRStream] = useState<MediaStream | null>(null);
+  const [negotiated, setNegotiated] = useState(false);
+  const [remoteId, setRemoteId] = useState("");
 
   const pc = useRef<RTCPeerConnection | null>(null);
   const channel = useRef<any>(null);
@@ -33,48 +35,47 @@ const MeetScreen = () => {
 
   useEffect(() => {
     rtcSocket.userJoined((socketID: string) => {
-      rtcSocket.sendOffer(socketID, {
-        title: "myoffer",
-        from: Device.info,
-      });
+      setRemoteId(socketID);
     });
 
     rtcSocket.offerIn((data: any) => {
-      Alert.alert(JSON.stringify(data, null, 2));
-      rtcSocket.sendAnswer(data.from, {
-        title: "myanswer",
-        from: Device.info,
-      });
+      createAnswer(data);
     });
 
     rtcSocket.answerIn((data: any) => {
-      Alert.alert(JSON.stringify(data, null, 2));
+      handleAnswer(data);
     });
   }, []);
 
-  useEffect(() => {}, [video]);
+  useEffect(() => {
+    if (negotiated && !stream && remoteId) {
+      console.log("offer being created");
+      createOffer();
+    }
+  }, [negotiated]);
 
-  // useEffect(() => {
-  //   pc.current?.addEventListener("negotiationneeded", (event) => {
-  //     console.log("negotiationneeded");
-  //     createOffer();
-  //   });
-  // });
+  useEffect(() => {
+    pc.current?.addEventListener("negotiationneeded", (event) => {
+      console.log("negotiationneeded");
+      setNegotiated(true);
+    });
+  });
 
   const start = async () => {
-    //pc.current = new RTCPeerConnection(peerCons);
     if (stream) return;
 
-    let mystream;
+    pc.current = new RTCPeerConnection(peerCons);
+
     try {
-      mystream = await mediaDevices.getUserMedia(mediaCons);
+      const mystream = await mediaDevices.getUserMedia(mediaCons);
       if (!video) {
         let videoTrack = mystream.getVideoTracks()[0];
         videoTrack.enabled = false;
       }
+      pc.current.addStream(mystream);
       setStream(mystream);
-      // pc.current.addStream(mystream);
-      // createChannel();
+
+      createChannel();
     } catch (e) {
       console.log("starting-error", e);
     }
@@ -82,7 +83,7 @@ const MeetScreen = () => {
 
   const createChannel = async () => {
     try {
-      //let datachannel = pc.current?.createDataChannel("my_channel");
+      const datachannel = pc.current?.createDataChannel("my_channel");
     } catch (err) {
       console.log("channel-creating-error", err);
     }
@@ -90,34 +91,36 @@ const MeetScreen = () => {
 
   const createOffer = async () => {
     try {
-      // const offerDescription = await pc.current?.createOffer(sessionCons);
-      // await pc.current?.setLocalDescription(offerDescription);
+      const offerDescription = await pc.current?.createOffer(sessionCons);
+      await pc.current?.setLocalDescription(offerDescription);
       // Send the offerDescription to the other participant.
+      rtcSocket.sendOffer(remoteId, offerDescription);
     } catch (err) {
       console.log("offer-creating-error", err);
     }
   };
 
-  const handleAnswer = async () => {
+  const handleAnswer = async ({ from, desc, type }: any) => {
     try {
       // Use the received answerDescription
-      // let receivedAnswer = {};
-      // const answerDescription = new RTCSessionDescription(receivedAnswer);
-      // await pc.current?.setRemoteDescription(answerDescription);
+
+      const answerDescription = new RTCSessionDescription(desc);
+      await pc.current?.setRemoteDescription(answerDescription);
     } catch (err) {
       console.log("handle-answer-error", err);
     }
   };
 
-  const createAnswer = async () => {
+  const createAnswer = async ({ from, desc, type }: any) => {
     try {
       // Use the received offerDescription
-      // let receivedOffer = {};
-      // const offerDescription = new RTCSessionDescription(receivedOffer);
-      // await pc.current?.setRemoteDescription(offerDescription);
-      // const answerDescription = await pc.current?.createAnswer(sessionCons);
-      // await pc.current?.setLocalDescription(answerDescription);
+
+      const offerDesc = new RTCSessionDescription(desc);
+      await pc.current?.setRemoteDescription(offerDesc);
+      const answerDesc = await pc.current?.createAnswer(sessionCons);
+      await pc.current?.setLocalDescription(answerDesc);
       // Send the answerDescription back as a response to the offerDescription.
+      rtcSocket.sendAnswer(from, answerDesc);
     } catch (err) {
       console.log("answer-creating-error", err);
     }
@@ -146,6 +149,15 @@ const MeetScreen = () => {
           zOrder={0}
         />
       </View>
+      <View style={styles.remote}>
+        <RTCView
+          streamURL={rStream?.toURL()}
+          style={styles.stream}
+          mirror={true}
+          objectFit={"cover"}
+          zOrder={0}
+        />
+      </View>
       <View style={styles.buttons}>
         <Button title="start" onPress={start} />
         <Switch value={video} onValueChange={(v) => setVideo(v)} />
@@ -166,7 +178,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   video: {
-    height: "80%",
+    height: "45%",
+    margin: 5,
+  },
+  remote: {
+    height: "45%",
     margin: 5,
   },
   stream: {

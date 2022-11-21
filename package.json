@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --dev-client",
+    "start:2": "expo start --port 9090",
     "android": "expo run:android",
+    "android:2": "react-native run-android --port 8081 --deviceId emulator-5556",
+    "android:3": "react-native run-android --port 8081 --deviceId emulator-5558",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "reset": "rm -rf node_modules/ && npm i"
