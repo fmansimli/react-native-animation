@@ -53,6 +53,13 @@ export const reconnect = (): void => {
 
 export const userJoined = (callback: any): void => {
   socket.on("user-joined", (socketId: any) => {
+    socket.emit("reply-to", socketId);
+    callback(socketId);
+  });
+};
+
+export const replyIn = (callback: any): void => {
+  socket.on("reply-in", (socketId: any) => {
     callback(socketId);
   });
 };
@@ -73,6 +80,16 @@ export const sendAnswer = (id: string, answer: any): void => {
 
 export const answerIn = (callback: any): void => {
   socket.on("in-answer", (data: any) => {
+    callback(data);
+  });
+};
+
+export const sendCandidate = (id: string, candidate: any): void => {
+  socket.emit("candidate", { id, candidate });
+};
+
+export const candidateIn = (callback: any): void => {
+  socket.on("in-candidate", (data: any) => {
     callback(data);
   });
 };

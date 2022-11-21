@@ -8,5 +8,5 @@ export default {
   height,
   isSmall: width < 375,
   OS: Platform.OS,
-  info: `${Device.brand}(${Device.modelName})--> ${Device.osName} (${Device.osVersion}) `,
+  info: `${Device.osName} (${Device.osVersion}) `,
 };

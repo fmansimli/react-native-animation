@@ -11,7 +11,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "reset": "rm -rf node_modules/ && npm i",
-    "reset:full": "rm -rf node_modules/ && cd ios/ && rm -rf Pods/ build/ Podfile.lock && cd .."
+    "clean:android": "cd android && ./gradlew cleanBuildCache && ./gradlew clean && cd ..",
+    "clean:ios": "cd ios/ && rm -rf Pods/ build/ Podfile.lock && cd ..",
+    "reset:ios": "rm -rf node_modules/ && npm run clean:ios",
+    "reset:android": "rm -rf node_modules/ && cd android && rm -rf /app/build build/ .gradle/",
+    "delete-lock": "rm  ~/.gradle/caches/7.5.1/fileHashes/fileHashes.lock && cd android && ./gradlew --stop && cd .. "
   },
   "dependencies": {
     "@react-navigation/drawer": "^6.5.0",
