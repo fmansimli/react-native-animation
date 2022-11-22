@@ -9,4 +9,5 @@ export default {
   isSmall: width < 375,
   OS: Platform.OS,
   info: `${Device.osName} (${Device.osVersion}) `,
+  osVersion: Device.osVersion,
 };
