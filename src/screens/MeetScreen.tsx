@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, View, Switch, Alert } from "react-native";
+import { Button, StyleSheet, View, Alert } from "react-native";
 import { DrawerNavigationOptions } from "@react-navigation/drawer";
 
 import {
@@ -20,10 +20,8 @@ const MeetScreen = () => {
   const [video, setVideo] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [rStream, setRStream] = useState<MediaStream | null>(null);
-  const [negotiated, setNegotiated] = useState(false);
   const [remoteId, setRemoteId] = useState("");
-  const [creator, setCreator] = useState(false);
-  const pc = useRef<RTCPeerConnection | null>(null);
+  const pc = useRef<RTCPeerConnection | null>(new RTCPeerConnection(peerCons));
   const channel = useRef<any>(null);
   const [candidates, setCandidates] = useState<any[]>([]);
 
@@ -58,13 +56,12 @@ const MeetScreen = () => {
     rtcSocket.candidateIn((data: any) => {
       const iceCandidate = new RTCIceCandidate(data.candidate);
 
-      console.log(Device.osVersion + "  ", "-> ice");
-
       if (pc.current?.remoteDescription == null) {
-        setCandidates((old: any[]) => [...old, iceCandidate]);
+        setCandidates((old: any[]) => old.concat(iceCandidate));
       } else {
         pc.current?.addIceCandidate(iceCandidate);
       }
+      //console.log(Device.osVersion, "ice->", candidates.length);
     });
   }, []);
 
@@ -78,8 +75,22 @@ const MeetScreen = () => {
 
   useEffect(() => {
     pc.current?.addEventListener("addstream", (event: any) => {
-      console.log(Device.osVersion + "  ", "-> stream");
+      //console.log(Device.osVersion, event.stream);
       setRStream(event.stream);
+    });
+  });
+
+  useEffect(() => {
+    pc.current?.addEventListener("iceconnectionstatechange", (event: any) => {
+      console.log("iceconnectionstatechange", pc.current?.iceConnectionState);
+      switch (pc.current?.iceConnectionState) {
+        case "connected":
+          console.log("connected!!!");
+          break;
+        case "completed":
+          console.log("completed!!!");
+          break;
+      }
     });
   });
 
@@ -91,10 +102,6 @@ const MeetScreen = () => {
 
   const start = async (creator: boolean = true) => {
     if (stream) return;
-
-    setCreator(creator);
-    pc.current = new RTCPeerConnection(peerCons);
-
     try {
       const mystream = await mediaDevices.getUserMedia(mediaCons);
 
@@ -123,8 +130,7 @@ const MeetScreen = () => {
     try {
       const offer = await pc.current?.createOffer(sessionCons);
       await pc.current?.setLocalDescription(offer);
-      console.log("dddd");
-      //rtcSocket.sendOffer(remoteId, offer);
+      rtcSocket.sendOffer(remoteId, offer);
     } catch (err) {
       console.log("offer-creating-error", err);
     }
@@ -138,7 +144,7 @@ const MeetScreen = () => {
       const answer = await pc.current?.createAnswer(sessionCons);
       await pc.current?.setLocalDescription(answer);
 
-      if (candidates.length > 0) {
+      if (candidates.length) {
         candidates.map((candidate) => pc.current?.addIceCandidate(candidate));
         setCandidates([]);
       }
@@ -158,6 +164,19 @@ const MeetScreen = () => {
     }
   };
 
+  const finish = () => {
+    if (candidates.length > 0) {
+      candidates.map((candidate) => pc.current?.addIceCandidate(candidate));
+      setCandidates([]);
+    } else {
+      Alert.alert("ssss");
+    }
+  };
+
+  const call = () => {
+    Alert.alert(String(candidates.length));
+  };
+
   const stop = () => {
     stream?.release();
     setStream(null);
@@ -168,7 +187,7 @@ const MeetScreen = () => {
 
     channel.current?.close();
     channel.current = null;
-    setNegotiated(false);
+    setCandidates([]);
   };
 
   return (
@@ -192,7 +211,8 @@ const MeetScreen = () => {
       </View>
       <View style={styles.buttons}>
         <Button title="start" onPress={() => startHandler(true)} />
-        <Button title="call" onPress={() => Alert.alert(remoteId)} />
+        <Button title="call" onPress={call} />
+        <Button title="finish" onPress={finish} />
         <Button title="stop" onPress={stop} />
       </View>
     </View>
