@@ -25,6 +25,8 @@ const MeetScreen = () => {
   const channel = useRef<any>(null);
   const [candidates, setCandidates] = useState<any[]>([]);
 
+  console.log("re-rendering...");
+
   useEffect(() => {
     rtcSocket.initWebRTC();
 
@@ -45,12 +47,12 @@ const MeetScreen = () => {
 
     rtcSocket.offerIn((data: any) => {
       start(false).then(() => {
-        createAnswer(data);
+        createAnswer(data).then(() => finish());
       });
     });
 
     rtcSocket.answerIn((data: any) => {
-      handleAnswer(data);
+      handleAnswer(data).then(() => finish());
     });
 
     rtcSocket.candidateIn((data: any) => {
@@ -168,8 +170,6 @@ const MeetScreen = () => {
     if (candidates.length > 0) {
       candidates.map((candidate) => pc.current?.addIceCandidate(candidate));
       setCandidates([]);
-    } else {
-      Alert.alert("ssss");
     }
   };
 
@@ -232,10 +232,12 @@ const styles = StyleSheet.create({
   video: {
     height: "45%",
     margin: 5,
+    borderWidth: 1,
   },
   remote: {
     height: "45%",
     margin: 5,
+    borderWidth: 1,
   },
   stream: {
     flex: 1,

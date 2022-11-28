@@ -9,13 +9,16 @@
     "android:2": "react-native run-android --port 8081 --deviceId emulator-5556",
     "android:3": "react-native run-android --port 8081 --deviceId emulator-5558",
     "ios": "expo run:ios",
+    "ios:2":"react-native run-ios --udid 00008120-001475882E9B401E",
     "web": "expo start --web",
     "reset": "rm -rf node_modules/ && npm i",
     "clean:android": "cd android && ./gradlew cleanBuildCache && ./gradlew clean && cd ..",
     "clean:ios": "cd ios/ && rm -rf Pods/ build/ Podfile.lock && cd ..",
     "reset:ios": "rm -rf node_modules/ && npm run clean:ios",
     "reset:android": "rm -rf node_modules/ && cd android && rm -rf /app/build build/ .gradle/",
-    "delete-lock": "rm  ~/.gradle/caches/7.5.1/fileHashes/fileHashes.lock && cd android && ./gradlew --stop && cd .. "
+    "delete-lock": "rm  ~/.gradle/caches/7.5.1/fileHashes/fileHashes.lock && cd android && ./gradlew --stop && cd .. ",
+    "generate-apk": "rm -rf android/app/build && npx react-native run-android --variant=release",
+    "generate-keystore": "cd android/app && keytool -genkeypair -v -storetype PKCS12 -keystore speak.keystore -alias speakalias -keyalg RSA -keysize 2048 -validity 10000"
   },
   "dependencies": {
     "@react-navigation/drawer": "^6.5.0",
